@@ -19,7 +19,7 @@ module xy2output(
 	// global variables
 	reg g_reset_n = 1'b1;
 	reg g_enable = 1'b1;
-	reg [15:0] g_x_output = 16'd0; //hfffd; // 0 - 65535
+	reg [15:0] g_x_output = 16'd32768; //hfffd; // 0 - 65535
 	reg [15:0] g_y_output = 16'd32768; 
 	reg [4:0]  g_aixs_data_index = 5'd0; //  0 to 19
 	localparam [2:0] g_ctrl_word = 3'b001;
@@ -53,9 +53,44 @@ module xy2output(
 	end 
 */
 	//*************
-	// enable for test, one xyz data need 10us,
-	// so 20us trigger g_enable, 1000 ticks
-	//reg [9:0] en;
+	// axis generator, one xyz data need 10us,
+	// 1ms trigger g_enable, 50,000 ticks
+	reg [15:0] axis_gen_cnt = 16'd0;
+	always @( posedge sys_clk )
+	begin
+		if ( g_reset_n == 1'b0 )
+		begin
+			axis_gen_cnt <= 16'd0;
+			g_enable <= 1'b0;
+		end
+		else
+		begin
+			if ( axis_gen_cnt == 16'd0 )
+			begin
+				g_enable = 1'b1;
+			end
+			else if ( axis_gen_cnt == 16'd50000 ) 
+			begin
+				g_enable <= 1'b0;
+				axis_gen_cnt <= 16'd0;
+
+				if ( g_x_output >= 16'd50000 )
+					g_x_output <= 16'd32768;
+				else
+					g_x_output <= g_x_output + 16'd1000;
+
+				if ( g_y_output >= 16'd50000 )
+					g_y_output <= 16'd32768;
+				else
+					g_y_output <= g_y_output + 16'd1000;
+
+			end
+			else
+			begin
+				axis_gen_cnt <= axis_gen_cnt + 16'd1;
+			end
+		end
+	end
 	//******
 
 	//****************
