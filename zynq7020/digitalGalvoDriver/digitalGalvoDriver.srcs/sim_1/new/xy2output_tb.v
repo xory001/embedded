@@ -7,7 +7,8 @@ module xy2output_tb(
 
     wire xy2_clk;
     wire xy2_sync;
-    wire xOutput;
+    wire x_output;
+    wire y_output;
     reg reset_n;
     reg sys_clk;
 
@@ -26,7 +27,8 @@ module xy2output_tb(
 	    .key_reset(reset_n),
     	.xy2_clk(xy2_clk),
         .xy2_sync(xy2_sync),
-        .x_signal(xOutput)
+        .x_signal(x_output),
+        .y_signal(y_output)
 
     );
 
